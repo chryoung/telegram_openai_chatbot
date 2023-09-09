@@ -51,11 +51,15 @@ def log_request():
         @functools.wraps(func)
         async def wrapped(*args, **kwargs):
             update = args[0]
+
             bot_logger.info(
                 F"Request starts. Request = {func.__name__}, user id = {update.message.from_user.id}, chat id = {update.message.chat_id}, message id = {update.message.id}")
+
             result = await func(*args)
+
             bot_logger.info(
                 F"Request ends. Request = {func.__name__}, user id = {update.message.from_user.id}, chat id = {update.message.chat_id}, message id = {update.message.id}")
+
             return result
         return wrapped
     return wrapper
@@ -67,13 +71,16 @@ async def restart(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
     lock = lockmgr.lock_gpt(user_id)
     if lock is not None:
-        chat_history.clear_history(user_id)
-        response = "Your chatting session has been restarted."
-        lockmgr.unlock(lock)
+        try:
+            chat_history.clear_history(user_id)
+            response = "Your chatting session has been restarted."
+        finally:
+            lockmgr.unlock(lock)
     else:
         response = "Chat service is busy..."
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=response)
+    if response:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=response)
 
 
 @log_request()
@@ -86,15 +93,19 @@ async def gptbot(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if lock is None:
         response = 'Chat service is still thinking...'
     else:
-        chat_history.update_history(user_id, [user_message])
-        history = chat_history.get_history(user_id)
-        response = chatgpt.get_response(update, history)
-        chat_history.update_history(user_id, [AssistantMessage(response)])
-        lockmgr.unlock(lock)
+        try:
+            chat_history.update_history(user_id, [user_message])
+            history = chat_history.get_history(user_id)
+            response = chatgpt.get_response(update, history)
+            chat_history.update_history(user_id, [AssistantMessage(response)])
+        finally:
+            lockmgr.unlock(lock)
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=response)
+    if response:
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=response)
 
 
+@log_request()
 @auth()
 async def gencode(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Code generation is under construction.")
