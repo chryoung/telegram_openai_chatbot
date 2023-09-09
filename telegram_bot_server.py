@@ -30,7 +30,7 @@ logging.basicConfig(
 )
 logging.getLogger("httpx").setLevel(logging.WARNING)
 bot_logger = logging.getLogger("bot")
-
+auth_logger = logging.getLogger("auth")
 
 def auth():
     def wrapper(func):
@@ -38,7 +38,7 @@ def auth():
         async def wrapped(*args, **kwargs):
             update = args[0]
             if update.message.from_user.id not in ALLOWED_USERS:
-                logging.warn(
+                auth_logger.warning(
                     F"Unauthroized user {update.message.from_user.id}")
                 return
             return await func(*args)
