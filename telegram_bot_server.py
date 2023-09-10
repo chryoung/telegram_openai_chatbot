@@ -9,8 +9,8 @@ import requests
 import json
 import openai
 import functools
-import chatgpt
 
+import chatgpt
 from chat_history import ChatHistory
 from message import UserMessage, AssistantMessage
 from simple_lock import LockManager
@@ -91,13 +91,17 @@ async def gptbot(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     lock = lockmgr.lock_gpt(user_id)
     if lock is None:
-        response = 'Chat service is still thinking...'
+        response = 'Chat service is still thinking🤔'
     else:
         try:
             chat_history.update_history(user_id, [user_message])
             history = chat_history.get_history(user_id)
             response = chatgpt.get_response(update, history)
             chat_history.update_history(user_id, [AssistantMessage(response)])
+        except openai.error.InvalidRequestError as ai_exception:
+            bot_logger.warning(ai_exception)
+            chat_history.clear_history(user_id)
+            response = "I'd rather not continue this topic😔. Please start a new one."
         finally:
             lockmgr.unlock(lock)
 
