@@ -1,0 +1,11 @@
+services:
+  bot:
+    image: telegram_openai_bot:1.0
+    restart: always
+    env_file:
+      - env
+    links:
+      - redis
+  redis:
+    image: redis:7.2.1
+    restart: always
