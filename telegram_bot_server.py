@@ -102,6 +102,9 @@ async def gptbot(update: Update, context: ContextTypes.DEFAULT_TYPE):
             bot_logger.warning(ai_exception)
             chat_history.clear_history(user_id)
             response = "I'd rather not continue this topic😔. Please start a new one."
+        except openai.error.RateLimitError as e:
+            bot_logger.warning(e)
+            response = "Your daily quota is reached, please try 1d later."
         finally:
             lockmgr.unlock(lock)
 
