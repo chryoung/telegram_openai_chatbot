@@ -7,7 +7,6 @@ from telegram.constants import ChatAction
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHandler, ContextTypes
 import openai
 import functools
-import re
 import traceback
 
 import chatgpt
@@ -115,8 +114,7 @@ async def gptbot(update: Update, context: ContextTypes.DEFAULT_TYPE):
             lockmgr.unlock(lock)
 
     if response:
-        response = response.replace(".", r"\.")
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=response, parse_mode='MarkdownV2')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=response)
 
 
 @log_request()
