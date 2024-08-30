@@ -115,6 +115,7 @@ async def gptbot(update: Update, context: ContextTypes.DEFAULT_TYPE):
             lockmgr.unlock(lock)
 
     if response:
+        response = response.replace(".", r"\.")
         await context.bot.send_message(chat_id=update.effective_chat.id, text=response, parse_mode='MarkdownV2')
 
 
