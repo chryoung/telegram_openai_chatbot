@@ -3,7 +3,7 @@ import asyncio
 import time
 import logging
 import redis
-from telegram import Update
+from telegram import Update, ChatAction
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHandler, ContextTypes
 import requests
 import json
@@ -94,6 +94,8 @@ async def gptbot(update: Update, context: ContextTypes.DEFAULT_TYPE):
         response = 'Chat service is still thinking🤔'
     else:
         try:
+            # Send typing action
+            await context.bot.send_chat_action(chat_id=update.effective_chat.id, action=ChatAction.TYPING)
             chat_history.update_history(user_id, [user_message])
             history = chat_history.get_history(user_id)
             response = chatgpt.get_response(update, history)
