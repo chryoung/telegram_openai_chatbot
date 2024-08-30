@@ -3,7 +3,8 @@ import asyncio
 import time
 import logging
 import redis
-from telegram import Update, ChatAction
+from telegram import Update
+from telegram.constants import ChatAction
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHandler, ContextTypes
 import requests
 import json
