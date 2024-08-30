@@ -10,6 +10,7 @@ import requests
 import json
 import openai
 import functools
+import re
 
 import chatgpt
 from chat_history import ChatHistory
@@ -114,6 +115,8 @@ async def gptbot(update: Update, context: ContextTypes.DEFAULT_TYPE):
             lockmgr.unlock(lock)
 
     if response:
+        # escape telegram Markdown chars
+        response = re.sub(r'([_*[\]()~>#\+\-=|{}.!])', r'\\\1', response)
         await context.bot.send_message(chat_id=update.effective_chat.id, text=response, parse_mode='MarkdownV2')
 
 
