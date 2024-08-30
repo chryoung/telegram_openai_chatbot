@@ -15,7 +15,7 @@ class Message:
     def __str__(self) -> str:
         return F'{self.role_in_a_letter}:{self.message}'
 
-    def num_tokens(self, model) -> int:
+    def num_tokens(self, model=None) -> int:
         """Return the number of tokens used."""
         if not model:
             model = os.getenv("OPENAI_TOKEN_COUNT_MODEL", "gpt-3.5-turbo-0613")

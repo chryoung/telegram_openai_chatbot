@@ -107,7 +107,9 @@ async def gptbot(update: Update, context: ContextTypes.DEFAULT_TYPE):
             response = "I'd rather not continue this topic😔. Please start a new one."
         except openai.error.RateLimitError as e:
             bot_logger.warning(e)
-            response = "You've hit rate limit. Please try later."
+            response = "You've hit rate limit. Please try again later."
+        except Exception as e:
+            response = "An error has occurred. Please try again later."
         finally:
             lockmgr.unlock(lock)
 
