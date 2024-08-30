@@ -1,16 +1,14 @@
 import os
 import asyncio
-import time
 import logging
 import redis
 from telegram import Update
 from telegram.constants import ChatAction
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHandler, ContextTypes
-import requests
-import json
 import openai
 import functools
 import re
+import traceback
 
 import chatgpt
 from chat_history import ChatHistory
@@ -110,6 +108,7 @@ async def gptbot(update: Update, context: ContextTypes.DEFAULT_TYPE):
             bot_logger.warning(e)
             response = "You've hit rate limit. Please try again later."
         except Exception as e:
+            bot_logger.error(traceback.format_exc())
             bot_logger.error(e)
             response = "An error has occurred. Please try again later."
         finally:
