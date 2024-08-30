@@ -110,6 +110,7 @@ async def gptbot(update: Update, context: ContextTypes.DEFAULT_TYPE):
             bot_logger.warning(e)
             response = "You've hit rate limit. Please try again later."
         except Exception as e:
+            bot_logger.error(e)
             response = "An error has occurred. Please try again later."
         finally:
             lockmgr.unlock(lock)
