@@ -1,4 +1,5 @@
 import dataclasses
+import os
 import tiktoken
 
 
@@ -14,8 +15,10 @@ class Message:
     def __str__(self) -> str:
         return F'{self.role_in_a_letter}:{self.message}'
 
-    def num_tokens(self, model="gpt-3.5-turbo-0613") -> int:
+    def num_tokens(self, model) -> int:
         """Return the number of tokens used."""
+        if not model:
+            model = os.getenv("OPENAI_TOKEN_COUNT_MODEL", "gpt-3.5-turbo-0613")
         try:
             encoding = tiktoken.encoding_for_model(model)
         except KeyError:
@@ -30,17 +33,24 @@ class Message:
             "gpt-4-32k-0613",
         }:
             tokens_per_message = 3
+            tokens_per_name = 1
         elif model == "gpt-3.5-turbo-0301":
             # every message follows <|start|>{role/name}\n{content}<|end|>\n
             tokens_per_message = 4
+            tokens_per_name = -1  # if there's a name, the role is omitted
+        elif "gpt-3.5-turbo" in model:
+            # Warning: gpt-3.5-turbo may update over time. Returning num tokens assuming gpt-3.5-turbo-0613.
+            return self.num_tokens(self.messages, model="gpt-3.5-turbo-0613")
+        elif "gpt-4" in model:
+            # Warning: gpt-4 may update over time. Returning num tokens assuming gpt-4-0613."
+            return self.num_tokens(self.messages, model="gpt-4-0613")
         else:
             raise NotImplementedError(
-                f"""num_tokens() is not implemented for model {model}. See https://github.com/openai/openai-python/blob/main/chatml.md for information on how messages are converted to tokens."""
+                f"""num_tokens_from_messages() is not implemented for model {model}."""
             )
-
         num_tokens = tokens_per_message
+        num_tokens += len(encoding.encode(self.role))
         num_tokens += len(encoding.encode(self.message))
-
         num_tokens += 3  # every reply is primed with <|start|>assistant<|message|>
         return num_tokens
 
