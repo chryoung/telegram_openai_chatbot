@@ -12,8 +12,8 @@ openai.api_type = os.getenv("OPENAI_API_TYPE")
 openai.api_version = os.getenv("OPENAI_API_VERSION")  # this may change in the future
 deployment_name = os.getenv("OPENAI_DEPLOYMENT")
 
-MAX_INPUT_TOKENS = 1000
-MAX_OUTPUT_TOKENS = 500
+MAX_INPUT_TOKENS = int(os.getenv("OPENAI_MAX_INPUT_TOKENS", 1000))
+MAX_OUTPUT_TOKENS = int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 500))
 
 logger = logging.getLogger("chatgpt")
 
